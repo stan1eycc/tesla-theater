@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stan's Tesla Theater</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .header {
+      text-align: center;
+      padding: 40px 20px 20px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      background: linear-gradient(135deg, #e44d4d, #ff8c42, #e44d4d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      color: #666;
+      font-size: 13px;
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px 20px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #aaa;
+      padding: 8px 20px;
+      border-radius: 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .tab-btn:hover { border-color: #555; color: #ddd; }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, #e44d4d, #ff8c42);
+      border-color: transparent;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    /* Grid */
+    .grid {
+      display: none;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+      padding: 0 24px 40px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .grid.active { display: grid; }
+
+    .card {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 14px;
+      padding: 20px 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .card:hover {
+      border-color: #444;
+      transform: translateY(-2px);
+      background: #1a1a1a;
+    }
+
+    .card img {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 12px;
+    }
+
+    .card span {
+      font-size: 12px;
+      color: #bbb;
+      line-height: 1.3;
+    }
+
+    /* Fullscreen landing */
+    .landing {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .landing.active { display: flex; }
+
+    .landing h1 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #e44d4d, #ff8c42, #e44d4d);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .landing p {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .launch-btn {
+      background: linear-gradient(135deg, #e44d4d, #ff8c42);
+      color: #fff;
+      border: none;
+      padding: 16px 48px;
+      border-radius: 30px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      text-decoration: none;
+    }
+
+    .launch-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 20px rgba(228, 77, 77, 0.4);
+    }
+
+    .landing .note {
+      color: #555;
+      font-size: 12px;
+      margin-top: 20px;
+    }
+
+    /* Dashboard (shown after fullscreen launch) */
+    .dashboard { display: none; }
+    .dashboard.active { display: block; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #333;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Landing: fullscreen launch -->
+  <div class="landing active" id="landing">
+    <h1>⚡ STAN'S TESLA THEATER</h1>
+    <p>全螢幕串流啟動器</p>
+    <a class="launch-btn" id="launchBtn" href="#">啟動全螢幕</a>
+    <p class="note">⚠️ P 檔閃雙黃燈時無法使用全螢幕</p>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard" id="dashboard">
+    <div class="header">
+      <h1>⚡ STAN'S TESLA THEATER</h1>
+      <p>FULLSCREEN STREAMING PORTAL</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="video">🎬 影音</button>
+      <button class="tab-btn" data-tab="music">🎵 音樂</button>
+      <button class="tab-btn" data-tab="tools">🛠 工具</button>
+      <button class="tab-btn" data-tab="kids">👶 兒童</button>
+    </div>
+
+    <!-- Video -->
+    <div class="grid active" id="tab-video">
+      <a class="card" href="#" data-url="https://www.netflix.com/tw/">
+        <img src="icons/netflix.svg" alt="Netflix">
+        <span>Netflix</span>
+      </a>
+      <a class="card" href="#" data-url="https://www.disneyplus.com/zh-hant/home/">
+        <img src="icons/disneyplus.svg" alt="Disney+">
+        <span>Disney+</span>
+      </a>
+      <a class="card" href="#" data-url="https://tv.apple.com/tw/">
+        <img src="icons/appletv.svg" alt="Apple TV+">
+        <span>Apple TV+</span>
+      </a>
+      <a class="card" href="#" data-url="https://www.primevideo.com/">
+        <img src="icons/primevideo.svg" alt="Prime Video">
+        <span>Prime Video</span>
+      </a>
+      <a class="card" href="#" data-url="https://www.hbogoasia.tw/">
+        <img src="icons/hbogo.svg" alt="HBO GO">
+        <span>HBO GO</span>
+      </a>
+      <a class="card" href="#" data-url="https://www.myvideo.net.tw/">
+        <img src="icons/myvideo.svg" alt="MyVideo">
+        <span>MyVideo</span>
+      </a>
+      <a class="card" href="#" data-url="https://www.linetv.tw/">
+        <img src="icons/linetv.svg" alt="LINE TV">
+        <span>LINE TV</span>
+      </a>
+      <a class="card" href="#" data-url="https://video.friday.tw/">
+        <img src="icons/friday.svg" alt="friDay影音">
+        <span>friDay 影音</span>
+      </a>
+    </div>
+
+    <!-- Music -->
+    <div class="grid" id="tab-music">
+      <a class="card" href="#" data-url="https://open.spotify.com/">
+        <img src="icons/spotify.svg" alt="Spotify">
+        <span>Spotify</span>
+      </a>
+      <a class="card" href="#" data-url="https://music.apple.com/">
+        <img src="icons/applemusic.svg" alt="Apple Music">
+        <span>Apple Music</span>
+      </a>
+    </div>
+
+    <!-- Tools -->
+    <div class="grid" id="tab-tools">
+      <a class="card" href="#" data-url="https://www.plugshare.com/tw">
+        <img src="icons/plugshare.svg" alt="PlugShare">
+        <span>PlugShare</span>
+      </a>
+      <a class="card" href="#" data-url="https://abetterrouteplanner.com/">
+        <img src="icons/abrp.svg" alt="ABRP">
+        <span>ABRP</span>
+      </a>
+      <a class="card" href="#" data-url="https://supercharge.info/map?Center=23.69,120.94&Zoom=8">
+        <img src="icons/supercharge.svg" alt="Supercharge">
+        <span>超充地圖</span>
+      </a>
+      <a class="card" href="#" data-url="https://1968.freeway.gov.tw/">
+        <img src="icons/highway.svg" alt="高速公路1968">
+        <span>高速公路 1968</span>
+      </a>
+      <a class="card" href="#" data-url="https://www.windy.com/?24.097,121.347,8">
+        <img src="icons/windy.svg" alt="Windy">
+        <span>Windy 天氣</span>
+      </a>
+    </div>
+
+    <!-- Kids -->
+    <div class="grid" id="tab-kids">
+      <a class="card" href="#" data-url="https://www.youtubekids.com/?hl=zh-TW">
+        <img src="icons/youtubekids.svg" alt="YouTube Kids">
+        <span>YouTube Kids</span>
+      </a>
+      <a class="card" href="#" data-url="https://www.myvideo.net.tw/child/">
+        <img src="icons/myvideo.svg" alt="MyVideo 兒童">
+        <span>MyVideo 兒童</span>
+      </a>
+    </div>
+
+    <div class="footer">Built by Stan · Powered by YouTube Redirect</div>
+  </div>
+
+  <script>
+    const YT_REDIRECT = 'https://www.youtube.com/redirect?q=';
+
+    // Landing → Dashboard (via YouTube redirect for fullscreen)
+    document.getElementById('launchBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Get the current page URL to redirect back in fullscreen
+      const dashUrl = window.location.href.split('#')[0] + '#dashboard';
+      window.location.href = YT_REDIRECT + encodeURIComponent(dashUrl);
+    });
+
+    // If we arrived via redirect (hash = #dashboard), show dashboard
+    function checkMode() {
+      if (window.location.hash === '#dashboard') {
+        document.getElementById('landing').classList.remove('active');
+        document.getElementById('dashboard').classList.add('active');
+      }
+    }
+    checkMode();
+    window.addEventListener('hashchange', checkMode);
+
+    // Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.grid').forEach(g => g.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Card clicks → YouTube redirect
+    document.querySelectorAll('.card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        e.preventDefault();
+        const url = this.dataset.url;
+        if (url) {
+          window.location.href = YT_REDIRECT + encodeURIComponent(url);
+        }
+      });
+    });
+  </script>
+
+</body>
+</html>
