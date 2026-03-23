@@ -1,22 +1,44 @@
-# Stan's Tesla Theater ⚡
+# Tesla Theater ⚡
 
-個人專屬的 Tesla 全螢幕串流啟動器。
+A minimal, zero-dependency fullscreen streaming launcher for Tesla's in-car browser.
 
-## 使用方式
+## How It Works
 
-1. 在 Tesla 車載瀏覽器開啟：`https://<username>.github.io/tesla-theater/`
-2. 點「啟動全螢幕」進入全螢幕模式
-3. 選擇你要的串流服務
+Tesla's browser grants fullscreen privileges to YouTube. This project leverages YouTube's redirect endpoint (`youtube.com/redirect?q=<url>`) to open any streaming service in fullscreen mode — creating a seamless, TV-like experience.
 
-## 原理
+## Usage
 
-利用 YouTube redirect (`youtube.com/redirect?q=<url>`) 讓 Tesla 瀏覽器以全螢幕模式開啟目標網站。
+1. Open the GitHub Pages URL in your Tesla's browser
+2. Tap **Launch Fullscreen** to enter fullscreen mode
+3. Select a streaming service from the dashboard
 
-## 自訂
+## Features
 
-編輯 `index.html` 中的 card 區塊即可新增/移除服務。
+- **Single-file** — pure HTML/CSS/JS, no frameworks or build tools
+- **4 categories** — Video, Music, Tools, Kids
+- **Dark theme** — optimized for in-car displays
+- **Tab navigation** — quick switching between categories
+- **Easy to customize** — edit `index.html` to add/remove services
 
-## 注意
+## Customization
 
-- P 檔閃雙黃燈時無法使用全螢幕
-- 需要各串流平台的有效帳號
+Each service is a `<a class="card">` element in `index.html`. To add a new one:
+
+1. Add an SVG icon to `icons/`
+2. Add a card entry in the appropriate tab section:
+
+```html
+<a class="card" href="#" data-url="https://example.com">
+  <img src="icons/example.svg" alt="Example">
+  <span>Example</span>
+</a>
+```
+
+## Notes
+
+- Fullscreen does not work when the car is in Park with hazard lights flashing
+- A valid subscription is required for each streaming platform
+
+## License
+
+MIT
